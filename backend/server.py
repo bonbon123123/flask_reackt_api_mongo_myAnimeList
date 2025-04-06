@@ -29,11 +29,8 @@ def make_kitsu_api_request(endpoint, params):
 
 @app.route("/animeSearch", methods=["GET"])
 def anime_search():
-    print("Received request for anime search")
     params = request.args.to_dict()
-    print(f"Parameters: {params}")
     response = make_kitsu_api_request("anime", params)
-    print(f"Kitsu API response: {response}")
     return jsonify(response)
 
 @app.route("/anime", methods=["GET"])
@@ -55,8 +52,6 @@ def add_anime():
     return jsonify({"message": "Anime added"}), 201
 
 if __name__ == "__main__":
-    print("Printing URL Map:")
     app.debug = True  
-    print(app.url_map) 
     app.run(host="0.0.0.0", port=5000)
 
