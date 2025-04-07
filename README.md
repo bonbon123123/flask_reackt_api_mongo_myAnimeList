@@ -16,3 +16,5 @@ docker-compose down -v
 docker system prune -f
 docker-compose up 
 
+testy
+docker-compose exec backend pytest /app/tests/test_server.py

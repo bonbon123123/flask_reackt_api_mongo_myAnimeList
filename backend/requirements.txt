@@ -3,3 +3,6 @@ pymongo
 python-dotenv
 flask-cors
 requests
+pytest
+Flask-Testing
+requests-mock

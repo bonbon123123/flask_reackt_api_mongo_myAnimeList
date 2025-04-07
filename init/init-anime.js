@@ -1,6 +1,7 @@
 db = db.getSiblingDB('animeDB');
 
 db.anime.insertOne({
+    _id: "0",
     title: "The Seven Deadly",
     coverImage: {
         tiny: "https://media.kitsu.app/anime/cover_images/42586/tiny.jpg",
