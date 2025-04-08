@@ -1,26 +1,31 @@
 # Anime MongoDB Docker
 
-Prosty projekt z MongoDB, który trzyma dane o obejrzanym anime.
+project with MongoDB that stores data about watched anime
 
 ## Jak odpalić
 
-Wystarczy mieć zainstalowanego Dockera, a potem w terminalu:
+You just to have Docker and node installed, and then run the following in the terminal
 
 ```bash
 git clone https://github.com/bonbon123123/flask_reackt_api_mongo_myAnimeList.git
 cd .\flask_reackt_api_mongo_myAnimeList\
-docker-compose up
-jeżeli był problem z dostępem do folderu init, to kontener mógł nie wystartować, trzeba dać pozwolenie na dostęp do tego folderu i jeszcze odpalić całość np tak:
+docker-compose up --build
+```
+If there was an issue with folder access to the `init` folder, the container might not have started. You need to grant permission for accessing that folder and then start everything again, for example, like this:
 
+```bash
 docker-compose up 
 docker-compose down -v
 docker-compose up 
+```
 
-odpalić nowy terminal
+To run the front-end, open a new terminal:
+```bash
 cd .\flask_reackt_api_mongo_myAnimeList\frontend
+npm install
+npm start
+```
 
-
-testy
+Tests from same place that docker-compose up:
 docker-compose exec backend pytest /app/tests/test_server.py
 
-żeby odpalić front end, trzeba wejść we fronend zainstalować zależności
