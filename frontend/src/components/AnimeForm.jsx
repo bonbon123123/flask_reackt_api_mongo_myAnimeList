@@ -1,40 +1,71 @@
 import React, { useState, useEffect } from 'react';
 
 const AnimeForm = ({ anime, onSubmit, onCancel }) => {
-    const [formData, setFormData] = useState({});
+    const today = new Date().toISOString().split('T')[0];
+
+    const [formData, setFormData] = useState({
+        watchedEpisodes: [],
+        completed: false,
+        rating: 0,
+        startedWatching: today,
+        finishedWatching: today,
+        title: '',
+        episodeCount: 0
+    });
 
     useEffect(() => {
-        setFormData({
-            ...anime,
-            watchedEpisodes: Array.isArray(anime.watchedEpisodes)
-                ? anime.watchedEpisodes.join(', ')
-                : anime.watchedEpisodes || '',
-            startedWatching: anime.startedWatching
-                ? new Date(anime.startedWatching).toISOString().split('T')[0]
-                : '',
-            finishedWatching: anime.finishedWatching
-                ? new Date(anime.finishedWatching).toISOString().split('T')[0]
-                : ''
-        });
-    }, [anime]);
+        if (anime) {
+            setFormData({
+                ...anime,
+                watchedEpisodes: Array.isArray(anime.watchedEpisodes)
+                    ? anime.watchedEpisodes
+                    : [],
+                startedWatching: anime.startedWatching
+                    ? new Date(anime.startedWatching).toISOString().split('T')[0]
+                    : today,
+                finishedWatching: anime.finishedWatching
+                    ? new Date(anime.finishedWatching).toISOString().split('T')[0]
+                    : today
+            });
+        }
+    }, [anime, today]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === 'checkbox' ? checked : value
-        });
+
+        if (type === 'checkbox') {
+            if (name === 'completed') {
+                setFormData({
+                    ...formData,
+                    completed: checked,
+                    watchedEpisodes: checked
+                        ? Array.from({ length: formData.episodeCount }, (_, i) => i + 1)
+                        : [],
+                });
+            } else {
+                const episodeNumber = parseInt(value);
+                setFormData({
+                    ...formData,
+                    watchedEpisodes: checked
+                        ? [...formData.watchedEpisodes, episodeNumber]
+                        : formData.watchedEpisodes.filter(ep => ep !== episodeNumber),
+                });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const processedData = {
             ...formData,
-            watchedEpisodes: formData.watchedEpisodes
-                .split(',')
-                .map(episode => parseInt(episode.trim()))
-                .filter(ep => !isNaN(ep)),
+            watchedEpisodes: formData.watchedEpisodes,
             rating: parseInt(formData.rating),
         };
 
@@ -43,46 +74,65 @@ const AnimeForm = ({ anime, onSubmit, onCancel }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-                <label className="form-label">Title</label>
-                <div className="form-control-plaintext">{formData.title}</div>
+            <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                <div className="text-gray-700">{formData.title}</div>
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Episode Count</label>
-                <div className="form-control-plaintext">{formData.episodeCount}</div>
+            <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Episode Count</label>
+                <div className="text-gray-700">{formData.episodeCount}</div>
+            </div>
+
+            <div className="mb-4">
+                <label htmlFor="watchedEpisodes" className="block text-gray-700 text-sm font-bold mb-2">
+                    Watched Episodes
+                </label>
+
+                <div
+                    className={`grid grid-cols-12 gap-1 max-h-[50vh] overflow-y-auto p-1`}
+                >
+                    {Array.from({ length: formData.episodeCount }, (_, i) => i + 1).map((episode) => (
+                        <label key={episode} className="flex flex-col items-center">
+                            <div className="mr-2">
+                                {episode}
+                            </div>
+                            <input
+                                type="checkbox"
+                                value={episode}
+                                checked={formData.watchedEpisodes.includes(episode)}
+                                onChange={handleChange}
+                                className="mr-2"
+                            />
+                        </label>
+                    ))}
+                </div>
             </div>
 
 
-            <div className="mb-3">
-                <label htmlFor="watchedEpisodes" className="form-label">Watched Episodes</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="watchedEpisodes"
-                    name="watchedEpisodes"
-                    value={formData.watchedEpisodes}
-                    onChange={handleChange}
-                />
-            </div>
 
-            <div className="mb-3 form-check">
+
+            <div className="mb-4 flex items-center">
                 <input
                     type="checkbox"
-                    className="form-check-input"
+                    className="mr-2"
                     id="completed"
                     name="completed"
                     checked={formData.completed || false}
                     onChange={handleChange}
                 />
-                <label className="form-check-label" htmlFor="completed">Completed</label>
+                <label className="text-gray-700 text-sm font-bold" htmlFor="completed">
+                    Completed
+                </label>
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="rating" className="form-label">Rating (0-10)</label>
+            <div className="mb-4">
+                <label htmlFor="rating" className="block text-gray-700 text-sm font-bold mb-2">
+                    Rating (0-10)
+                </label>
                 <input
                     type="number"
-                    className="form-control"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="rating"
                     name="rating"
                     value={formData.rating || 0}
@@ -92,11 +142,13 @@ const AnimeForm = ({ anime, onSubmit, onCancel }) => {
                 />
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="startedWatching" className="form-label">Started Watching</label>
+            <div className="mb-4">
+                <label htmlFor="startedWatching" className="block text-gray-700 text-sm font-bold mb-2">
+                    Started Watching
+                </label>
                 <input
                     type="date"
-                    className="form-control"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="startedWatching"
                     name="startedWatching"
                     value={formData.startedWatching}
@@ -104,11 +156,13 @@ const AnimeForm = ({ anime, onSubmit, onCancel }) => {
                 />
             </div>
 
-            <div className="mb-3">
-                <label htmlFor="finishedWatching" className="form-label">Finished Watching</label>
+            <div className="mb-4">
+                <label htmlFor="finishedWatching" className="block text-gray-700 text-sm font-bold mb-2">
+                    Finished Watching
+                </label>
                 <input
                     type="date"
-                    className="form-control"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     id="finishedWatching"
                     name="finishedWatching"
                     value={formData.finishedWatching}
@@ -116,9 +170,20 @@ const AnimeForm = ({ anime, onSubmit, onCancel }) => {
                 />
             </div>
 
-            <div className="d-flex gap-2">
-                <button type="submit" className="btn btn-primary">Save</button>
-                <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+            <div className="flex gap-2">
+                <button
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                    Save
+                </button>
+                <button
+                    type="button"
+                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    onClick={onCancel}
+                >
+                    Cancel
+                </button>
             </div>
         </form>
     );

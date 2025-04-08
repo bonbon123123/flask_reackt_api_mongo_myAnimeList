@@ -1,16 +1,14 @@
 // src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from './components/Navbar';
 import MyAnimeList from './pages/ListPage';
 import AnimeSearch from './pages/SearchPage';
 
-
 function App() {
   return (
     <Router>
-      <div className="App">
+      <div className="min-h-screen bg-gray-50">
         <Navbar />
         <main>
           <Routes>
