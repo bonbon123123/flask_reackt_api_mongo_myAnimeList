@@ -2,7 +2,7 @@
 
 project with MongoDB that stores data about watched anime
 
-## Jak odpalić
+## How to start
 
 You just to have Docker and node installed, and then run the following in the terminal
 
